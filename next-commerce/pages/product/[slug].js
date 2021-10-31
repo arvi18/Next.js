@@ -1,6 +1,14 @@
 import React from "react";
 import { useRouter } from "next/router";
-import { Link, Grid, List, ListItem, Typography, Card, Button } from "@material-ui/core";
+import {
+  Link,
+  Grid,
+  List,
+  ListItem,
+  Typography,
+  Card,
+  Button,
+} from "@material-ui/core";
 import NextLink from "next/link";
 import data from "../../utils/data";
 import Layout from "../../components/Layout";
@@ -34,7 +42,7 @@ export default function ProductScreen() {
         <Grid item md={3} xs={12}>
           <List>
             <ListItem>
-              <Typography component="h1" variant="h2">
+              <Typography component="h1" variant="h1">
                 {product.name}
               </Typography>
             </ListItem>
@@ -74,7 +82,7 @@ export default function ProductScreen() {
                   </Grid>
                   <Grid item xs={6}>
                     <Typography>
-                      {product.countInStock > 0 ? 'In stock' : 'Unavailable'}
+                      {product.countInStock > 0 ? "In stock" : "Unavailable"}
                     </Typography>
                   </Grid>
                 </Grid>
