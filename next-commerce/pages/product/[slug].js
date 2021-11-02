@@ -1,5 +1,4 @@
 import React from "react";
-import { useRouter } from "next/router";
 import {
   Link,
   Grid,
@@ -10,16 +9,15 @@ import {
   Button,
 } from "@material-ui/core";
 import NextLink from "next/link";
-import data from "../../utils/data";
 import Layout from "../../components/Layout";
 import useStyles from "../../utils/styles";
 import Image from "next/image";
+import db from "../../utils/db";
+import Product from "../../models/Product";
 
-export default function ProductScreen() {
+export default function ProductScreen(props) {
+  const {product}=props
   const classes = useStyles();
-  const router = useRouter();
-  const { slug } = router.query;
-  const product = data.products.find((a) => a.slug === slug);
   if (!product) {
     return <div>Product not found</div>;
   }
@@ -98,4 +96,16 @@ export default function ProductScreen() {
       </Grid>
     </Layout>
   );
+}
+
+export async function getServerSideProps(context){
+  const {slug}=context.params
+  await db.connect()
+  const product=await Product.findOne({slug}).lean()   // @Server Error: Error: @Error serializing `.products[0]` returned from `getServerSideProps` in "/". @Reason: `object` ("[object Object]") cannot be serialized as JSON. Please only return JSON serializable data types.
+  await db.disconnect()
+  return {
+    props:{
+      product: db.convertDocToObj(product)
+    }
+  }
 }
