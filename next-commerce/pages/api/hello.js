@@ -7,4 +7,3 @@ export default async function handler(req, res) {
   // await db.disconnect()
   res.status(200).json({ name: 'John Doe' })
 }
- 

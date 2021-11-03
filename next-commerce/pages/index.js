@@ -57,6 +57,6 @@ export async function getServerSideProps(){
   return {
     props:{
       products:products.map(db.convertDocToObj)
-    }
+    },
   }
 }
