@@ -9,7 +9,7 @@ import {
   Button,
 } from "@material-ui/core";
 import NextLink from "next/link";
-import axios from 'axios'
+import axios from "axios";
 import Layout from "../../components/Layout";
 import useStyles from "../../utils/styles";
 import Image from "next/image";
@@ -17,10 +17,12 @@ import db from "../../utils/db";
 import { Store } from "../../utils/Store";
 import { useContext } from "react";
 import Product from "../../models/Product";
+import { useRouter } from "next/dist/client/router";
 
 export default function ProductScreen(props) {
+  const router=useRouter()
   const { dispatch } = useContext(Store);
-  const {product}=props
+  const { product } = props;
   const classes = useStyles();
   if (!product) {
     return <div>Product not found</div>;
@@ -28,13 +30,13 @@ export default function ProductScreen(props) {
 
   const addToCartHandler = async () => {
     const { data } = await axios.get(`/api/products/${product._id}`);
-    console.log('data:', data)
 
     if (data.countInStock <= 0) {
-      window.alert('Sorry. Product is out of stock');
+      window.alert("Sorry. Product is out of stock");
       return;
     }
-    dispatch({ type: 'CART_ADD_ITEM', payload: { ...product, quantity: 1 } });
+    dispatch({ type: "CART_ADD_ITEM", payload: { ...product, quantity: 1 } });
+    router.push('/cart')
   };
 
   return (
@@ -102,7 +104,12 @@ export default function ProductScreen(props) {
                 </Grid>
               </ListItem>
               <ListItem>
-                <Button fullWidth variant="contained" color="primary" onClick={addToCartHandler} >
+                <Button
+                  fullWidth
+                  variant="contained"
+                  color="primary"
+                  onClick={addToCartHandler}
+                >
                   Add to cart
                 </Button>
               </ListItem>
@@ -114,14 +121,31 @@ export default function ProductScreen(props) {
   );
 }
 
-export async function getServerSideProps(context){
-  const {slug}=context.params
-  await db.connect()
-  const product=await Product.findOne({slug}).lean()   // @Server Error: Error: @Error serializing `.products[0]` returned from `getServerSideProps` in "/". @Reason: `object` ("[object Object]") cannot be serialized as JSON. Please only return JSON serializable data types.
-  await db.disconnect()
+export async function getServerSideProps(context) {
+  const { slug } = context.params;
+  await db.connect();
+  const product = await Product.findOne({ slug }).lean(); // @Server Error: Error: @Error serializing `.products[0]` returned from `getServerSideProps` in "/". @Reason: `object` ("[object Object]") cannot be serialized as JSON. Please only return JSON serializable data types.
+  await db.disconnect();
   return {
-    props:{
-      product: db.convertDocToObj(product)
-    }
-  }
+    props: {
+      product: db.convertDocToObj(product),
+    },
+  };
 }
+
+// product: {
+//   _id: new ObjectId("617fe575387c6b9aab3f20b9"),
+//   name: 'Fit Shirt',
+//   slug: 'fit-shirt',
+//   category: 'Shirts',
+//   image: '/images/shirt2.jpg',
+//   price: 80,
+//   brand: 'Adidas',
+//   rating: 4.2,
+//   numReviews: 10,
+//   countInStock: 20,
+//   description: 'A popular shirt',
+//   __v: 0,
+//   createdAt: 2021-11-01T13:02:45.303Z,
+//   updatedAt: 2021-11-01T13:02:45.303Z
+// }
