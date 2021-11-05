@@ -1,8 +1,10 @@
 import React, { useContext } from "react";
 import { Store } from "../utils/Store";
+import dynamic from 'next/dynamic'
 import Layout from "../components/Layout";
 import NextLink from "next/link";
 import Image from "next/image";
+import axios from "axios"; 
 import { Link } from "@material-ui/core";
 import {
   Grid,
@@ -16,13 +18,27 @@ import {
   MenuItem,
   Select,
   Button,
+  Card,
+  List,
+  ListItem,
 } from "@material-ui/core";
 
-export default function CartScreen() {
-  const { state } = useContext(Store);
+function CartScreen() {
+  const { state, dispatch } = useContext(Store);
   const { cartItems } = state.cart;
-  function Handler() {
-    console.log("cartItems:", cartItems);
+
+  const updatecartHandler=async(item, quantity)=>{
+      const { data } = await axios.get(`/api/products/${item._id}`);
+  
+      if (data.countInStock < quantity) {
+        window.alert("Sorry. Product is out of stock");
+        return;
+      }
+      dispatch({ type: "CART_ADD_ITEM", payload: { ...item, quantity} });
+  }
+  const removeItemHandler=(item)=>{
+      console.log('done')
+      dispatch({ type: "CART_REMOVE_ITEM", payload: item })
   }
 
   return (
@@ -36,16 +52,16 @@ export default function CartScreen() {
         </div>
       ) : (
         <Grid container spacing={1}>
-          <Grid md={9} xs={12}>
+          <Grid item md={9} xs={12}>
             <TableContainer>
               <Table>
                 <TableHead>
                   <TableRow>
                     <TableCell>Image</TableCell>
-                    <TableCell align="center">Name</TableCell>
-                    <TableCell align="center">Quantity</TableCell>
-                    <TableCell align="center">Price</TableCell>
-                    <TableCell align="center">Action</TableCell>
+                    <TableCell align="left">Name</TableCell>
+                    <TableCell align="left">Quantity</TableCell>
+                    <TableCell align="left">Price</TableCell>
+                    <TableCell align="left">Action</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -63,24 +79,28 @@ export default function CartScreen() {
                           </Link>
                         </NextLink>
                       </TableCell>
-                      <TableCell align="center">{item.name}</TableCell>
+                      <TableCell align="left">
+                        <NextLink href={`/product/${item.slug}`} passHref>
+                          <Link>{item.name}</Link>
+                        </NextLink>
+                      </TableCell>
 
-                      {/* const range = (start, stop, step) => Array.from({ length: (stop - start) / step + 1}, (_, i) => start + (i * step)); */}
+                      {/* const range = (left, stop, step) => Array.from({ length: (stop - left) / step + 1}, (_, i) => left + (i * step)); */}
                       {/* range(1,5,1)=[1,2,3,4,5] */}
                       {/* const range = function*(from,to) { for(let i = from; i <= to; i++) yield I;}; [...range(3,5)]// => [3, 4, 5] */}
 
-                      <TableCell align="center">
-                        <Select value={item.quantity}>
-                          {[...Array(item.countInStock).keys()].map((x) => 
-                            (<MenuItem key={x + 1} value={x+1 } align="center">
+                      <TableCell align="left">
+                        <Select value={item.quantity} onChange={e=>updatecartHandler(item, e.target.value)} >
+                          {[...Array(item.countInStock).keys()].map((x) => (
+                            <MenuItem key={x + 1} value={x + 1} align="left">
                               {x + 1}
-                            </MenuItem>)
-                        )}
+                            </MenuItem>
+                          ))}
                         </Select>
                       </TableCell>
-                      <TableCell align="center">{item.price}</TableCell>
-                      <TableCell align="center">
-                        <Button onClick={Handler} variant="text">
+                      <TableCell align="left">{item.price}</TableCell>
+                      <TableCell align="left">
+                        <Button variant="text" onClick={()=>removeItemHandler(item)}>
                           ❎
                         </Button>
                       </TableCell>
@@ -90,11 +110,30 @@ export default function CartScreen() {
               </Table>
             </TableContainer>
           </Grid>
-          <Grid md={3} xs={12}>
-            cart actions
+          <Grid item md={3} xs={12}>
+            <Card>
+              <List>
+                <ListItem>
+                  <Typography variant="h2">
+                    Subtotal ({cartItems.reduce((a, c) => a + c.quantity, 0)}{" "}
+                    items) : $
+                    {cartItems.reduce((a, c) => a + c.quantity * c.price, 0)}
+                  </Typography>
+                </ListItem>
+                <ListItem>
+                  <Button variant="contained" color="primary" fullWidth>
+                    Check Out
+                  </Button>
+                </ListItem>
+              </List>
+            </Card>
           </Grid>
         </Grid>
       )}
     </Layout>
   );
 }
+
+// render page in client side 
+// do not intend to expose this page to crawlers
+export default dynamic(()=>Promise.resolve(CartScreen), {ssr:false})
