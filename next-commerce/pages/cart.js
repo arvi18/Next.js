@@ -4,6 +4,7 @@ import dynamic from 'next/dynamic'
 import Layout from "../components/Layout";
 import NextLink from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/dist/client/router";
 import axios from "axios"; 
 import { Link } from "@material-ui/core";
 import {
@@ -26,6 +27,7 @@ import {
 function CartScreen() {
   const { state, dispatch } = useContext(Store);
   const { cartItems } = state.cart;
+  const router=useRouter()
 
   const updatecartHandler=async(item, quantity)=>{
       const { data } = await axios.get(`/api/products/${item._id}`);
@@ -40,6 +42,7 @@ function CartScreen() {
       console.log('done')
       dispatch({ type: "CART_REMOVE_ITEM", payload: item })
   }
+  const checkoutHandler=()=> router.push('/shipping')
 
   return (
     <Layout title="Your cart">
@@ -121,7 +124,7 @@ function CartScreen() {
                   </Typography>
                 </ListItem>
                 <ListItem>
-                  <Button variant="contained" color="primary" fullWidth>
+                  <Button variant="contained" color="primary" fullWidth onClick={checkoutHandler}>
                     Check Out
                   </Button>
                 </ListItem>
