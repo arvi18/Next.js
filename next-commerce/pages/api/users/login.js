@@ -10,6 +10,7 @@ import { signToken } from "../../../utils/auth";
 // password: bcrypt.hashSync('123456'),
 // isAdmin: true,
 // },
+
 const handler = nc();
 
 handler.post(async (req, res) => {
