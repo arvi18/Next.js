@@ -6,7 +6,6 @@ export default function Shipping() {
     router.push('/login')
     return (
         <div>
-            <h1>nothing</h1>
         </div>
     )
 }
