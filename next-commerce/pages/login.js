@@ -9,8 +9,8 @@ import {
 import axios from "axios";
 import Cookies from "js-cookie";
 import NextLink from "next/link";
-import router, { useRouter } from "next/router";
-import React, { useContext, useState } from "react";
+import { useRouter } from "next/router";
+import React, { useContext, useEffect, useState } from "react";
 import Layout from "../components/Layout";
 import { Store } from "../utils/Store";
 import useStyles from "../utils/styles";
@@ -18,9 +18,14 @@ import useStyles from "../utils/styles";
 export default function Login() {
   const router = useRouter();
   const { state, dispatch } = useContext(Store);
-  if (state.userInfo) {
-    router.push("/");
-  }
+  const { userInfo } = state;
+  const { redirect } = router.query; // login?redirect=/shipping
+
+  useEffect(() => {
+    if (userInfo) {
+      router.push("/");
+    }
+  }, []);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -76,7 +81,9 @@ export default function Login() {
           <ListItem>
             Don't have an account? &nbsp;
             <NextLink href="/register" passHref>
-              <Link>Register</Link>
+              <NextLink href={`/login?redirect=${redirect || "/"}`} passHref>
+                <Link>Register</Link>
+              </NextLink>
             </NextLink>
           </ListItem>
         </List>

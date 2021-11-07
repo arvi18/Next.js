@@ -11,6 +11,7 @@ export default function Shipping() {
     }
     return (
         <div>
+        <h1>hehihihi shapoo!</h1>
         </div>
     )
 }
