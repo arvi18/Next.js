@@ -55,13 +55,18 @@ function reducer(state, action) {
         ...state,
         cart: { ...state.cart, shippingAddress: action.payload },
       };
+    case "CART_CLEAR":
+      return {
+        ...state,
+        cart: { ...state.cart, cartItems: [] },
+      };
     case "SAVE_PAYMENT_METHOD":
       return {
         ...state,
         cart: { ...state.cart, paymentMethod: action.payload },
       };
     case "USER_LOGOUT": {
-      return { ...state, userInfo: null, cart: { cartItems: [] } };
+      return { ...state, userInfo: null, cart: { cartItems: [], shippingAddress:{}, paymentMethod:'' } };
     }
 
     default:
